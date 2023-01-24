@@ -42,23 +42,50 @@ namespace frost::system
 	}
 	void semaphore::acquire(pimpl_t<semaphore> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::WaitForSingleObject(ptr, ~0ull);
+		if (ptr == nullptr)
+			throw std::exception("Field to acquite semaphore - semaphore is null.");
+		
+		DWORD result = ::WaitForSingleObject(ptr, ~0ul);
+		switch (result)
+		{
+		break; case WAIT_FAILED:
+			throw std::exception("Failed to acquire semaphore.");
+		break; case WAIT_TIMEOUT:
+			throw std::exception("Failed to acquire semaphore - Wait timeout.");
+		}
 	}
 	bool semaphore::tryAcquire(pimpl_t<semaphore> ptr)
 	{
-		if (ptr == nullptr) throw;
-		return ::WaitForSingleObject(ptr, 0ull);
+		if (ptr == nullptr)
+			throw std::exception("Field to try acquite semaphore - semaphore is null.");
+		
+		DWORD result = ::WaitForSingleObject(ptr, 0ul);
+		switch (result)
+		{
+		break; case WAIT_FAILED:
+			throw std::exception("Failed to acquire semaphore.");
+		break; case WAIT_TIMEOUT:
+			return false;
+		break; case WAIT_OBJECT_0: case WAIT_ABANDONED:
+			return true;
+		}
+		return false;
 	}
 	void semaphore::release(pimpl_t<semaphore> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::ReleaseSemaphore(ptr, 1, nullptr);
+		if (ptr == nullptr)
+			throw std::exception("Failed to release semaphore - semaphore is null.");
+
+		if (::ReleaseSemaphore(ptr, 1, nullptr) == FALSE) 
+			throw std::exception("Failed to release semaphore.");
 	}
 	void semaphore::destroy(pimpl_t<semaphore> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::CloseHandle(ptr);
+		if (ptr == nullptr)
+			throw std::exception("Failed to destroy semaphore - semaphore is null.");
+
+		if (::CloseHandle(ptr) == FALSE)
+			throw std::exception("Failed to destroy semaphore.");
 	}
 }
 #endif

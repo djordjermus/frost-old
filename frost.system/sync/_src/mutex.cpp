@@ -42,23 +42,49 @@ namespace frost::system
 	}
 	void mutex::acquire(pimpl_t<mutex> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::WaitForSingleObject(ptr, ~0ull);
+		if (ptr == nullptr)
+			throw std::exception("Failed to acquire mutex - mutex is null.");
+
+		DWORD result = ::WaitForSingleObject(ptr, ~0ul);
+		switch (result)
+		{
+		break; case WAIT_FAILED:
+			throw std::exception("Failed to acquire mutex.");
+		break; case WAIT_TIMEOUT:
+			throw std::exception("Failed to acquire mutex - Wait timeout.");
+		}
 	}
 	bool mutex::tryAcquire(pimpl_t<mutex> ptr)
 	{
-		if (ptr == nullptr) throw;
-		return ::WaitForSingleObject(ptr, 0ull);
+		if (ptr == nullptr)
+			throw std::exception("Failed to try acquire mutex - mutex is null.");
+
+		DWORD result = ::WaitForSingleObject(ptr, 0ul);
+		switch (result)
+		{
+		break; case WAIT_FAILED:
+			throw std::exception("Failed to acquire mutex.");
+		break; case WAIT_TIMEOUT:
+			return false;
+		break; case WAIT_OBJECT_0: case WAIT_ABANDONED:
+			return true;
+		}
+		return false;
 	}
 	void mutex::release(pimpl_t<mutex> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::ReleaseMutex(ptr);
+		if (ptr == nullptr)
+			throw std::exception("Failed to release mutex - mutex is null.");
+
+		if (::ReleaseMutex(ptr) == FALSE)
+			throw std::exception("Failed to release mutex.");
 	}
 	void mutex::destroy(pimpl_t<mutex> ptr)
 	{
-		if (ptr == nullptr) throw;
-		::CloseHandle(ptr);
+		if (ptr == nullptr)
+			throw std::exception("Failed to destroy mutex - mutex is null.");
+		if (::CloseHandle(ptr) == FALSE)
+			throw std::exception("Failed to destroy mutex.");
 	}
 }
 #endif
