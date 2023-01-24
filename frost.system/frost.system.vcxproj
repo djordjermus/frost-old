@@ -137,11 +137,14 @@
   <ItemGroup>
     <ClCompile Include="dummy.cpp" />
     <ClCompile Include="sync\_src\mutex.cpp" />
+    <ClCompile Include="sync\_src\recmx.cpp" />
     <ClCompile Include="sync\_src\semaphore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sync\mutex.hpp" />
+    <ClInclude Include="sync\recmx.hpp" />
     <ClInclude Include="sync\semaphore.hpp" />
+    <ClInclude Include="sync\_src\_impl.hpp" />
     <ClInclude Include="_include.hpp" />
   </ItemGroup>
   <ItemGroup>

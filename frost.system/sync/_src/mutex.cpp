@@ -1,7 +1,5 @@
-#include "../mutex.hpp"
-
 #if defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
+#include "_impl.hpp"
 namespace frost::system
 {
 	mutex::mutex(pimpl_t<mutex> ptr) :
@@ -21,6 +19,8 @@ namespace frost::system
 			destroy(this->getPimpl());
 	}
 
+
+
 	void mutex::acquire()
 	{
 		return acquire(this->getPimpl());
@@ -34,9 +34,11 @@ namespace frost::system
 		return release(this->getPimpl());
 	}
 
+
+
 	pimpl_t<mutex> mutex::create(bool auto_acquire)
 	{
-		return reinterpret_cast<pimpl_t<mutex>>(::CreateMutexW(nullptr, static_cast<BOOL>(auto_acquire), nullptr);
+		return reinterpret_cast<pimpl_t<mutex>>(::CreateMutexW(nullptr, static_cast<BOOL>(auto_acquire), nullptr));
 	}
 	void mutex::acquire(pimpl_t<mutex> ptr)
 	{

@@ -1,7 +1,5 @@
-#include "../semaphore.hpp"
-
 #if defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
+#include "_impl.hpp"
 namespace frost::system
 {
 	semaphore::semaphore(pimpl_t<semaphore> ptr) :
@@ -21,6 +19,8 @@ namespace frost::system
 			destroy(getPimpl());
 	}
 
+
+
 	void semaphore::acquire()
 	{
 		return acquire(this->getPimpl());
@@ -33,6 +33,8 @@ namespace frost::system
 	{
 		return release(this->getPimpl());
 	}
+
+
 
 	pimpl_t<semaphore> semaphore::create(i32 count, i32 max)
 	{
