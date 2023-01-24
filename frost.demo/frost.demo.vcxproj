@@ -147,6 +147,9 @@
     <ProjectReference Include="..\frost.engine\frost.engine.vcxproj">
       <Project>{28d22477-9c05-4593-a8c6-c7429b648b09}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\frost.system\frost.system.vcxproj">
+      <Project>{34e6d7be-41aa-41da-9fba-16ddfd63efc2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -135,7 +135,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="dummy.cpp" />
     <ClCompile Include="sync\_src\mutex.cpp" />
     <ClCompile Include="sync\_src\recmx.cpp" />
     <ClCompile Include="sync\_src\semaphore.cpp" />
