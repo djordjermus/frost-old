@@ -45,7 +45,14 @@ namespace frost
 			return ret;
 		}
 
-		void swapPimpl(pimpl<T> swap) noexcept
+		void swapPimpl(pimpl<T>& swap) noexcept
+		{
+			pimpl_t<T> temp = _pimpl;
+			_pimpl = swap._pimpl;
+			swap._pimpl = temp;
+		}
+
+		void swapPimpl(pimpl<T>&& swap) noexcept
 		{
 			pimpl_t<T> temp = _pimpl;
 			_pimpl = swap._pimpl;
