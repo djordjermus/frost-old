@@ -2,44 +2,6 @@
 #include "_impl.hpp"
 namespace frost::system
 {
-	recmx::recmx(pimpl_t<recmx> ptr) :
-		pimpl<recmx>(ptr) {}
-	recmx::recmx(bool auto_acquire) :
-		recmx(create(auto_acquire)) {}
-	recmx::recmx(pimpl<recmx>&& move) noexcept :
-		recmx(move.detachPimpl()) {}
-	recmx& recmx::operator=(pimpl<recmx>&& move) noexcept
-	{
-		swapPimpl(move);
-		return *this;
-	}
-	recmx::~recmx()
-	{
-		if (this->getPimpl())
-			destroy(this->getPimpl());
-	}
-
-
-
-	void recmx::acquire()
-	{
-		return acquire(this->getPimpl());
-	}
-	bool recmx::tryAcquire()
-	{
-		return tryAcquire(this->getPimpl());
-	}
-	void recmx::release()
-	{
-		return release(this->getPimpl());
-	}
-	u64 recmx::getSpin()
-	{
-		return getSpin(this->getPimpl());
-	}
-
-
-
 	pimpl_t<recmx> recmx::create(bool auto_acquire)
 	{
 		pimpl_t<recmx> ret = new impl_t<recmx>();

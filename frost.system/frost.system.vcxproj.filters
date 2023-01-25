@@ -41,5 +41,8 @@
     <ClInclude Include="sync\recmx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="_macro.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

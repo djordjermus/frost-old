@@ -1,3 +1,4 @@
+#include "../_macro.hpp"
 #include "frost.core/primitives.hpp"
 #include "frost.core/pimpl.hpp"
 #pragma once
@@ -7,20 +8,40 @@ namespace frost::system
 	{
 	public:
 
-		semaphore(pimpl_t<semaphore> ptr);
-		semaphore(i32 count, i32 max);
-		semaphore(pimpl<semaphore>&& move) noexcept;
-		semaphore& operator=(pimpl<semaphore>&& move) noexcept;
-		~semaphore();
+		inline semaphore(pimpl_t<semaphore> ptr) :
+			pimpl<semaphore>(ptr) {}
+		inline semaphore(i32 count, i32 max) :
+			semaphore(create(count, max)) {}
+		inline semaphore(pimpl<semaphore>&& move) noexcept :
+			semaphore(move.detachPimpl()) {}
+		inline semaphore& operator=(pimpl<semaphore>&& move) noexcept
+		{
+			swapPimpl(move);
+			return *this;
+		}
+		inline ~semaphore()
+		{
+			if (getPimpl() != nullptr)
+				destroy(getPimpl());
+		}
 
-		void acquire();
-		bool tryAcquire();
-		void release();
+		inline void acquire()
+		{
+			return acquire(this->getPimpl());
+		}
+		inline bool tryAcquire()
+		{
+			return tryAcquire(this->getPimpl());
+		}
+		inline void release()
+		{
+			return release(this->getPimpl());
+		}
 
-		static pimpl_t<semaphore> create(i32 count, i32 max);
-		static void acquire(pimpl_t<semaphore> ptr);
-		static bool tryAcquire(pimpl_t<semaphore> ptr);
-		static void release(pimpl_t<semaphore> ptr);
-		static void destroy(pimpl_t<semaphore> ptr);
+		static FROST_SYSTEM pimpl_t<semaphore> create(i32 count, i32 max);
+		static FROST_SYSTEM void acquire(pimpl_t<semaphore> ptr);
+		static FROST_SYSTEM bool tryAcquire(pimpl_t<semaphore> ptr);
+		static FROST_SYSTEM void release(pimpl_t<semaphore> ptr);
+		static FROST_SYSTEM void destroy(pimpl_t<semaphore> ptr);
 	};
 }

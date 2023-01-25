@@ -2,40 +2,6 @@
 #include "_impl.hpp"
 namespace frost::system
 {
-	mutex::mutex(pimpl_t<mutex> ptr) :
-		pimpl<mutex>(ptr) {}
-	mutex::mutex(bool auto_acquire) :
-		mutex(create(auto_acquire)) {}
-	mutex::mutex(pimpl<mutex>&& move) noexcept :
-		mutex(move.detachPimpl()) {}
-	mutex& mutex::operator=(pimpl<mutex>&& move) noexcept
-	{
-		swapPimpl(move);
-		return *this;
-	}
-	mutex::~mutex()
-	{
-		if (this->getPimpl())
-			destroy(this->getPimpl());
-	}
-
-
-
-	void mutex::acquire()
-	{
-		return acquire(this->getPimpl());
-	}
-	bool mutex::tryAcquire()
-	{
-		return tryAcquire(this->getPimpl());
-	}
-	void mutex::release()
-	{
-		return release(this->getPimpl());
-	}
-
-
-
 	pimpl_t<mutex> mutex::create(bool auto_acquire)
 	{
 		return reinterpret_cast<pimpl_t<mutex>>(::CreateMutexW(nullptr, static_cast<BOOL>(auto_acquire), nullptr));
