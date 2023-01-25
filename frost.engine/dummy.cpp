@@ -1,2 +1,2 @@
 #include "_macro.hpp"
-int FROST_API dummy() { return 0; }
+int FROST_ENGINE dummy() { return 0; }
