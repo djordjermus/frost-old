@@ -30,6 +30,9 @@
     <ClCompile Include="input\_src\key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="threading\_src\message.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_include.hpp">
@@ -54,6 +57,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="input\key.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threading\message.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threading\_src\_impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
