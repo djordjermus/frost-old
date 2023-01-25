@@ -9,7 +9,7 @@ namespace frost::system
 	void semaphore::acquire(pimpl_t<semaphore> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Field to acquite semaphore - semaphore is null.");
+			throw std::invalid_argument("Field to acquite semaphore - semaphore is null.");
 		
 		DWORD result = ::WaitForSingleObject(ptr, ~0ul);
 		switch (result)
@@ -23,7 +23,7 @@ namespace frost::system
 	bool semaphore::tryAcquire(pimpl_t<semaphore> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Field to try acquite semaphore - semaphore is null.");
+			throw std::invalid_argument("Field to try acquite semaphore - semaphore is null.");
 		
 		DWORD result = ::WaitForSingleObject(ptr, 0ul);
 		switch (result)
@@ -40,7 +40,7 @@ namespace frost::system
 	void semaphore::release(pimpl_t<semaphore> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to release semaphore - semaphore is null.");
+			throw std::invalid_argument("Failed to release semaphore - semaphore is null.");
 
 		if (::ReleaseSemaphore(ptr, 1, nullptr) == FALSE) 
 			throw std::exception("Failed to release semaphore.");
@@ -48,7 +48,7 @@ namespace frost::system
 	void semaphore::destroy(pimpl_t<semaphore> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to destroy semaphore - semaphore is null.");
+			throw std::invalid_argument("Failed to destroy semaphore - semaphore is null.");
 
 		if (::CloseHandle(ptr) == FALSE)
 			throw std::exception("Failed to destroy semaphore.");

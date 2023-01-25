@@ -11,7 +11,8 @@ namespace frost::system
 	}
 	void recmx::acquire(pimpl_t<recmx> ptr)
 	{
-		if (ptr == nullptr) throw;
+		if (ptr == nullptr)
+			throw std::invalid_argument("Field to acquite recursive mutex - recursive mutex is null.");
 
 		DWORD result = ::WaitForSingleObject(ptr->mutex, ~0ul);
 		switch (result)
@@ -26,7 +27,8 @@ namespace frost::system
 	}
 	bool recmx::tryAcquire(pimpl_t<recmx> ptr)
 	{
-		if (ptr == nullptr) throw;
+		if (ptr == nullptr)
+			throw std::invalid_argument("Field to try acquite recursive mutex - recursive mutex is null.");
 
 		DWORD result = ::WaitForSingleObject(ptr->mutex, 0ul);
 		switch (result)
@@ -45,7 +47,7 @@ namespace frost::system
 	void recmx::release(pimpl_t<recmx> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to release recursive mutex - recursive mutex is null.");
+			throw std::invalid_argument("Failed to release recursive mutex - recursive mutex is null.");
 
 		DWORD result = ::WaitForSingleObject(ptr->mutex, 0ul);
 		if (result == WAIT_OBJECT_0)
@@ -62,13 +64,13 @@ namespace frost::system
 	u64 recmx::getSpin(pimpl_t<recmx> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to get spin - recursive mutex is null.");
+			throw std::invalid_argument("Failed to get spin - recursive mutex is null.");
 		return ptr->spin;
 	}
 	void recmx::destroy(pimpl_t<recmx> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to destroy recursive mutex - recursive mutex is null.");
+			throw std::invalid_argument("Failed to destroy recursive mutex - recursive mutex is null.");
 
 		if (::CloseHandle(ptr->mutex) == FALSE)
 			throw std::exception("Failed to destroy recursive mutex.");

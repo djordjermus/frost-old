@@ -1,7 +1,7 @@
 #include "../mutex.hpp"
 #include "../semaphore.hpp"
 #include "../recmx.hpp"
-#include <exception>
+#include <stdexcept>
 #pragma once
 
 #if defined(_WIN32) || defined(_WIN64)
