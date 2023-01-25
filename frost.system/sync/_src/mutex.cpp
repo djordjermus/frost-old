@@ -9,7 +9,7 @@ namespace frost::system
 	void mutex::acquire(pimpl_t<mutex> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to acquire mutex - mutex is null.");
+			throw std::invalid_argument("Failed to acquire mutex - mutex is null.");
 
 		DWORD result = ::WaitForSingleObject(ptr, ~0ul);
 		switch (result)
@@ -23,7 +23,7 @@ namespace frost::system
 	bool mutex::tryAcquire(pimpl_t<mutex> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to try acquire mutex - mutex is null.");
+			throw std::invalid_argument("Failed to try acquire mutex - mutex is null.");
 
 		DWORD result = ::WaitForSingleObject(ptr, 0ul);
 		switch (result)
@@ -40,7 +40,7 @@ namespace frost::system
 	void mutex::release(pimpl_t<mutex> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to release mutex - mutex is null.");
+			throw std::invalid_argument("Failed to release mutex - mutex is null.");
 
 		if (::ReleaseMutex(ptr) == FALSE)
 			throw std::exception("Failed to release mutex.");
@@ -48,7 +48,7 @@ namespace frost::system
 	void mutex::destroy(pimpl_t<mutex> ptr)
 	{
 		if (ptr == nullptr)
-			throw std::exception("Failed to destroy mutex - mutex is null.");
+			throw std::invalid_argument("Failed to destroy mutex - mutex is null.");
 		if (::CloseHandle(ptr) == FALSE)
 			throw std::exception("Failed to destroy mutex.");
 	}
