@@ -24,7 +24,7 @@ namespace frost
 			return *this;
 		}
 
-		pimpl_t<T> getPimpl() noexcept
+		pimpl_t<T> getPimpl() const noexcept
 		{
 			return _pimpl;
 		}

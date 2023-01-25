@@ -24,6 +24,12 @@
     <ClCompile Include="sync\_src\recmx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="input\_src\cursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="input\_src\key.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_include.hpp">
@@ -42,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="_macro.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="input\cursor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="input\key.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
