@@ -141,6 +141,7 @@
     <ClCompile Include="sync\_src\recmx.cpp" />
     <ClCompile Include="sync\_src\semaphore.cpp" />
     <ClCompile Include="threading\_src\message.cpp" />
+    <ClCompile Include="threading\_src\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input\cursor.hpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="sync\semaphore.hpp" />
     <ClInclude Include="sync\_src\_impl.hpp" />
     <ClInclude Include="threading\message.hpp" />
+    <ClInclude Include="threading\thread.hpp" />
     <ClInclude Include="threading\_src\_impl.hpp" />
     <ClInclude Include="_include.hpp" />
     <ClInclude Include="_macro.hpp" />
