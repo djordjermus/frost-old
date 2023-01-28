@@ -135,24 +135,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="input\_src\cursor.cpp" />
-    <ClCompile Include="input\_src\key.cpp" />
-    <ClCompile Include="sync\_src\mutex.cpp" />
-    <ClCompile Include="sync\_src\recmx.cpp" />
-    <ClCompile Include="sync\_src\semaphore.cpp" />
-    <ClCompile Include="threading\_src\message.cpp" />
-    <ClCompile Include="threading\_src\thread.cpp" />
+    <ClCompile Include="input\_win\cursor.cpp" />
+    <ClCompile Include="input\_win\key.cpp" />
+    <ClCompile Include="sync\_win\mutex.cpp" />
+    <ClCompile Include="sync\_win\recmx.cpp" />
+    <ClCompile Include="sync\_win\semaphore.cpp" />
+    <ClCompile Include="threading\_win\message.cpp" />
+    <ClCompile Include="threading\_win\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gui\gui.hpp" />
     <ClInclude Include="input\cursor.hpp" />
     <ClInclude Include="input\key.hpp" />
     <ClInclude Include="sync\mutex.hpp" />
     <ClInclude Include="sync\recmx.hpp" />
     <ClInclude Include="sync\semaphore.hpp" />
-    <ClInclude Include="sync\_src\_impl.hpp" />
+    <ClInclude Include="sync\_win\_impl.hpp" />
     <ClInclude Include="threading\message.hpp" />
     <ClInclude Include="threading\thread.hpp" />
-    <ClInclude Include="threading\_src\_impl.hpp" />
+    <ClInclude Include="threading\_win\_impl.hpp" />
     <ClInclude Include="_include.hpp" />
     <ClInclude Include="_macro.hpp" />
   </ItemGroup>

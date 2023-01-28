@@ -34,12 +34,4 @@ int main()
 	u64 max = 1'000;
 	auto th1 = frost::system::thread(printToMax, &max);
 	auto th2 = frost::system::thread(printToZero, &max);
-	//auto th3 = frost::system::thread(pump, (void*)nullptr);
-	//sf.acquire();
-	//
-	//for (u64 i = 0; i < 1000; i++)
-	//{
-	//	frost::system::message::send(th3.getId(), printNumAndRelease, &i);
-	//	sf.acquire();
-	//}
 }

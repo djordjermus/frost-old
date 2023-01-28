@@ -15,25 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sync\_src\mutex.cpp">
+    <ClCompile Include="sync\_win\mutex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sync\_src\semaphore.cpp">
+    <ClCompile Include="sync\_win\semaphore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sync\_src\recmx.cpp">
+    <ClCompile Include="sync\_win\recmx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="input\_src\cursor.cpp">
+    <ClCompile Include="input\_win\cursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="input\_src\key.cpp">
+    <ClCompile Include="input\_win\key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="threading\_src\message.cpp">
+    <ClCompile Include="threading\_win\message.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="threading\_src\thread.cpp">
+    <ClCompile Include="threading\_win\thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClInclude Include="sync\semaphore.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sync\_src\_impl.hpp">
+    <ClInclude Include="sync\_win\_impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sync\recmx.hpp">
@@ -65,10 +65,13 @@
     <ClInclude Include="threading\message.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="threading\_src\_impl.hpp">
+    <ClInclude Include="threading\_win\_impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="threading\thread.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
