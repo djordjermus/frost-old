@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <math.h>
 #define BUF_SIZE 121
+#define MAX_PRECISION 1'000'000'000'000'000'000
 namespace frost
 {
 	pimpl_t<string> string::create(const wchar_t* source)
@@ -72,7 +73,14 @@ namespace frost
 	}
 	pimpl_t<string> string::create(f64 value, const format& format)
 	{
-		i64 decimal = fmod(value, 1.0) * 1'000'000'000'000'000'000;
+		i64 precision = 1;
+		if (format.precision != 0)
+			for (u64 i = 0; i < format.precision; i++)
+				precision = precision * 10;
+		else
+			precision = MAX_PRECISION;
+		
+		i64 decimal = fmod(value, 1.0) * precision;
 		decimal = (decimal >= 0) * decimal + (decimal < 0) * -decimal;
 
 		wchar_t buffer[BUF_SIZE];
@@ -84,8 +92,7 @@ namespace frost
 			decimal = decimal / 10;
 
 		// Write decimal part
-		u64 precision = format.precision == 0 ? ~0ull : format.precision;
-		while (decimal != 0 && precision != 0)
+		while (decimal != 0)
 		{
 			buffer[i--]	= L'0' + (decimal % 10);
 			decimal		= decimal / 10;

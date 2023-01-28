@@ -34,16 +34,16 @@ int main()
 {
 	frost::string hello(L"Hello ");
 	frost::string world(L"World!");
-	frost::string concatenation = hello + world;
-	frost::string boolean(true);
-	frost::string uinteger(11222333444555666ull);
-	frost::string sinteger(-1337ll);
-	frost::string dbl(-1234567.456);
-	std::wcout << concatenation.substring(2, 5).begin() << L'\n';
-	std::wcout << boolean.begin() << L'\n';
-	std::wcout << uinteger.begin() << L'\n';
-	std::wcout << sinteger.begin() << L'\n';
-	std::wcout << dbl.begin() << L'\n';
+	frost::string strings[] =
+	{
+		hello + world,
+		frost::string(false),
+		frost::string(123456789ull),
+		frost::string(-1234567890ll),
+		frost::string(-12345.67890),
+	};
+	for(auto& str : strings)
+		std::wcout << str.begin()  << L'\n';
 	return 0;
 
 	u64 max = 1'000;
