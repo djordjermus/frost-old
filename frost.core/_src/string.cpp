@@ -7,6 +7,9 @@ namespace frost
 {
 	pimpl_t<string> string::create(const wchar_t* source)
 	{
+		if (source == nullptr)
+			throw std::invalid_argument("Failed to create string - source is null.");
+
 		// Calculate length
 		const wchar_t* counter = source;
 		while (*counter != L'\0')
@@ -121,6 +124,9 @@ namespace frost
 	}
 	pimpl_t<string> string::clone(pimpl_t<string> ptr)
 	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to clone string - string is null.");
+
 		// Calculate length
 		u64 length = getLength(ptr);
 		
@@ -138,6 +144,11 @@ namespace frost
 	}
 	pimpl_t<string> string::concat(pimpl_t<string> left, pimpl_t<string> right)
 	{
+		if (left == nullptr)
+			throw std::invalid_argument("Failed to concatenate strings - left string is null.");
+		if (right == nullptr)
+			throw std::invalid_argument("Failed to concatenate strings - right string is null.");
+
 		// Calculate length
 		u64 left_len = getLength(left);
 		u64 right_len = getLength(right);
