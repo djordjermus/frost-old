@@ -6,3 +6,4 @@
 #include "pimpl.hpp"
 #include "random.hpp"
 #include "algorithms.hpp"
+#include "string.hpp"
