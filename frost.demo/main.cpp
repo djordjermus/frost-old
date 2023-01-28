@@ -1,5 +1,6 @@
 #include <iostream>
 #include <mutex>
+#include "frost.core/_include.hpp"
 #include "frost.system/_include.hpp"
 frost::system::semaphore sf(0, 1);
 void pump(void* unused)
@@ -31,6 +32,20 @@ void printToZero(u64* pFrom)
 }
 int main()
 {
+	frost::string hello(L"Hello ");
+	frost::string world(L"World!");
+	frost::string concatenation = hello + world;
+	frost::string boolean(true);
+	frost::string uinteger(11222333444555666ull);
+	frost::string sinteger(-1337ll);
+	frost::string dbl(-1337.456);
+	std::wcout << concatenation.substring(2, 5).begin() << L'\n';
+	std::wcout << boolean.begin() << L'\n';
+	std::wcout << uinteger.begin() << L'\n';
+	std::wcout << sinteger.begin() << L'\n';
+	std::wcout << dbl.begin() << L'\n';
+	return 0;
+
 	u64 max = 1'000;
 	auto th1 = frost::system::thread(printToMax, &max);
 	auto th2 = frost::system::thread(printToZero, &max);

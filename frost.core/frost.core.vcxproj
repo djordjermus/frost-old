@@ -138,11 +138,13 @@
     <ClCompile Include="_src\algorithms.cpp" />
     <ClCompile Include="_src\colors.cpp" />
     <ClCompile Include="_src\random.cpp" />
+    <ClCompile Include="_src\string.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.hpp" />
     <ClInclude Include="colors.hpp" />
     <ClInclude Include="primitives.hpp" />
+    <ClInclude Include="string.hpp" />
     <ClInclude Include="tuples.hpp" />
     <ClInclude Include="vectors.hpp" />
     <ClInclude Include="_include.hpp" />
