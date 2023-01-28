@@ -1,9 +1,9 @@
 #include "../string.hpp"
 #include <stdexcept>
 #include <math.h>
+#define BUF_SIZE 121
 namespace frost
 {
-
 	pimpl_t<string> string::create(const wchar_t* source)
 	{
 		// Calculate length
@@ -33,9 +33,9 @@ namespace frost
 		if (value == 0)
 			return create(L"0");
 
-		wchar_t buffer[121];
-		buffer[120] = L'\0';
-		u64 i = 119;
+		wchar_t buffer[BUF_SIZE];
+		buffer[BUF_SIZE - 1] = L'\0';
+		u64 i = BUF_SIZE - 2;
 
 		while (value != 0)
 		{
@@ -55,9 +55,9 @@ namespace frost
 		bool negative = value < 0;
 		value = (static_cast<i64>(!negative) * value) + (static_cast<i64>(negative) * -value);
 
-		wchar_t buffer[121];
-		buffer[120] = L'\0';
-		u64 i = 119;
+		wchar_t buffer[BUF_SIZE];
+		buffer[BUF_SIZE - 1] = L'\0';
+		u64 i = BUF_SIZE - 2;
 
 		while (value != 0)
 		{
@@ -75,23 +75,26 @@ namespace frost
 		i64 decimal = fmod(value, 1.0) * 1'000'000'000'000'000'000;
 		decimal = (decimal >= 0) * decimal + (decimal < 0) * -decimal;
 
-		wchar_t buffer[128];
-		buffer[127] = L'\0';
-		u64 i = 126;
+		wchar_t buffer[BUF_SIZE];
+		buffer[BUF_SIZE - 1] = L'\0';
+		u64 i = BUF_SIZE - 2;
 
 		// Remove leading zeroes from decimal part
 		while ((decimal % 10) == 0)
 			decimal = decimal / 10;
 
 		// Write decimal part
-		while (decimal != 0)
+		u64 precision = format.precision == 0 ? ~0ull : format.precision;
+		while (decimal != 0 && precision != 0)
 		{
 			buffer[i--]	= L'0' + (decimal % 10);
 			decimal		= decimal / 10;
+			precision--;
 		}
 
 		// Decimal dot
 		buffer[i--] = format.decimal_separator;
+		u64 i_off = BUF_SIZE - 2 - i;
 
 		i64 whole = static_cast<i64>(value);
 
@@ -100,7 +103,7 @@ namespace frost
 
 		while (whole != 0)
 		{
-			if (format.part_size != 0 && ((i + format.part_size) % (format.part_size + 1)) == format.part_size)
+			if (format.part_size != 0 && (((i + i_off) + format.part_size) % (format.part_size + 1)) == format.part_size)
 				buffer[i--] = format.part_separator;
 			buffer[i--] = L'0' + (whole % 10);
 			whole = whole / 10;

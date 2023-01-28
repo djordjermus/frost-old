@@ -80,7 +80,7 @@ namespace frost
 			wchar_t decimal_separator	= L'.';
 			wchar_t part_separator		= L'\'';
 			u64		part_size			= 3;
-			u64		precision			= 0; // TODO
+			u64		precision			= 4;
 		};
 	};
 }

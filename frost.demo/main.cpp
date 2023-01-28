@@ -38,7 +38,7 @@ int main()
 	frost::string boolean(true);
 	frost::string uinteger(11222333444555666ull);
 	frost::string sinteger(-1337ll);
-	frost::string dbl(-1337.456);
+	frost::string dbl(-1234567.456);
 	std::wcout << concatenation.substring(2, 5).begin() << L'\n';
 	std::wcout << boolean.begin() << L'\n';
 	std::wcout << uinteger.begin() << L'\n';
