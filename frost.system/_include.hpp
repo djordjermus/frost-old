@@ -8,3 +8,5 @@
 
 #include "threading/thread.hpp"
 #include "threading/message.hpp"
+
+#include "gui/gui.hpp"

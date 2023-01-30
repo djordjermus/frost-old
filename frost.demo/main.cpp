@@ -32,21 +32,14 @@ void printToZero(u64* pFrom)
 }
 int main()
 {
-	frost::string hello(L"Hello ");
-	frost::string world(L"World!");
-	frost::string strings[] =
-	{
-		hello + world,
-		frost::string(false),
-		frost::string(123456789ull),
-		frost::string(-1234567890ll),
-		frost::string(-12345.67890),
-	};
-	for(auto& str : strings)
-		std::wcout << str.begin()  << L'\n';
-	return 0;
+	frost::system::message::initQueue();
+	frost::system::message msg;
 
-	u64 max = 1'000;
-	auto th1 = frost::system::thread(printToMax, &max);
-	auto th2 = frost::system::thread(printToZero, &max);
+	frost::system::gui::description desc = {};
+	auto gui = frost::system::gui(desc);
+	while (gui.isAlive())
+	{
+		msg.waitPull();
+		msg.dispatch();
+	}
 }

@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gui\_win\gui.cpp" />
     <ClCompile Include="input\_win\cursor.cpp" />
     <ClCompile Include="input\_win\key.cpp" />
     <ClCompile Include="sync\_win\mutex.cpp" />
@@ -145,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\gui.hpp" />
+    <ClInclude Include="gui\_win\_impl.hpp" />
     <ClInclude Include="input\cursor.hpp" />
     <ClInclude Include="input\key.hpp" />
     <ClInclude Include="sync\mutex.hpp" />
