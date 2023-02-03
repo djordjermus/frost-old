@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="algorithms.hpp" />
     <ClInclude Include="colors.hpp" />
+    <ClInclude Include="eventData.h" />
     <ClInclude Include="primitives.hpp" />
     <ClInclude Include="string.hpp" />
     <ClInclude Include="tuples.hpp" />

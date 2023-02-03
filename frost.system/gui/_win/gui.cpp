@@ -8,6 +8,7 @@ namespace frost::system
 		DWORD	style		= frost::optionsToDword(desc.options);
 		DWORD	exstyle		= WS_EX_LAYERED;
 		int		show_cmd	= frost::stateToInt(desc.state);
+		
 		if (atom == 0)
 			throw std::exception("Failed to create window - could not create window atom.");
 
@@ -18,6 +19,7 @@ namespace frost::system
 			desc.position.x, desc.position.y, desc.size.x, desc.size.y,
 			nullptr, nullptr, nullptr, reinterpret_cast<LPVOID>(ret)
 		);
+		ret->thread_id = ::GetCurrentThreadId();
 		frost::setOpacityAndTransparency(ret, 1.0f, nullptr);
 
 		::ShowWindow(ret->hwnd, show_cmd);
@@ -55,7 +57,30 @@ namespace frost::system
 
 		delete ptr;
 	}
+
+#define AUTO_DEFINE_HANDLER(V, E)\
+	void gui::addHandler(pimpl_t<gui> ptr, frost::eventHandler<frost::pimpl_t<gui>, E>& handler)\
+	{ V.emplace_back(&handler); }\
+	void gui::removeHandler(pimpl_t<gui> ptr, frost::eventHandler<frost::pimpl_t<gui>, E>& handler)\
+	{\
+		for (auto it = V.begin(), jt = V.end(); it != jt; it++) {\
+			if (*it == &handler) { V.erase(it); break; }\
+		}\
+	}
+#define AUTO_SIGNAL_HANDLER(V, S, E)\
+	for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
+
+	AUTO_DEFINE_HANDLER(ptr->_reposition_handler,		repositionGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_resize_handler,			resizeGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_redraw_handler,			redrawGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_enter_handlers,	cursorEnterGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_move_handlers,		cursorMoveGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_leave_handlers,	cursorLeaveGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_close_handlers,			closeGuiEvent);
+	AUTO_DEFINE_HANDLER(ptr->_destroy_handlers,			destroyGuiEvent);
 }
+
+
 namespace frost
 {
 	ATOM getWindowClassAtom()
@@ -150,22 +175,173 @@ namespace frost
 		ptr->key = color == nullptr ? rgba8() : *color;
 	}
 
-	LRESULT guiProcedure(HWND h, UINT m, WPARAM w, LPARAM l) 
+	pimpl_t<system::gui> GuiFromHwnd(HWND h)
+	{
+		LONG_PTR ret = ::GetWindowLongPtrW(h, GWLP_USERDATA);
+		return reinterpret_cast<pimpl_t<system::gui>>(ret);
+	}
+	LRESULT guiProcedure(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		switch (m)
 		{
+		case WM_MOUSEMOVE:
+			return wmMouseMove(h, m, w, l);
+		case WM_MOUSELEAVE:
+			return wmMouseLeave(h, m, w, l);
+		case WM_MOVE:
+			return wmMove(h, m, w, l);
+		case WM_SIZE:
+			return wmSize(h, m, w, l);
+		case WM_PAINT:
+			return wmPaint(h, m, w, l);
 		case WM_CREATE:
 			return wmCreate(h, m, w, l);
+		case WM_CLOSE:
+			return wmClose(h, m, w, l);
+		case WM_DESTROY:
+			return wmDestroy(h, m, w, l);
 		default:
-			break;
+			return ::DefWindowProcW(h, m, w, l);
 		}
 		return ::DefWindowProcW(h, m, w, l);
+	}
+
+	LRESULT wmMouseMove(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		gui->cursor_last = vecFromLParam(l);
+		if (!gui->cursor_inside)
+		{
+			gui->cursor_inside = true;
+
+			// Track mouse leave
+			TRACKMOUSEEVENT tme;
+			tme.cbSize		= sizeof(tme);
+			tme.dwFlags		= TME_LEAVE;
+			tme.hwndTrack	= h;
+			::TrackMouseEvent(&tme);
+
+			frost::system::cursorEnterGuiEvent e(gui->cursor_last);
+			AUTO_SIGNAL_HANDLER(gui->_cursor_enter_handlers, gui, e);
+			if (e.doDefaultAction())
+				return ::DefWindowProcW(h, m, w, l);
+			else
+				return 0;
+		}
+		else
+		{
+			frost::system::cursorMoveGuiEvent e(gui->cursor_last);
+			AUTO_SIGNAL_HANDLER(gui->_cursor_move_handlers, gui, e);
+			if (e.doDefaultAction())
+				return ::DefWindowProcW(h, m, w, l);
+			else
+				return 0;
+		}
+
+	}
+	LRESULT wmMouseLeave(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		gui->cursor_inside = false;
+
+		frost::system::cursorLeaveGuiEvent e(gui->cursor_last);
+		AUTO_SIGNAL_HANDLER(gui->_cursor_leave_handlers, gui, e);
+		if (e.doDefaultAction())
+			return ::DefWindowProcW(h, m, w, l);
+		else
+			return 0;
+	}
+	LRESULT wmMove(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		frost::system::repositionGuiEvent e(vecFromLParam(l));
+		AUTO_SIGNAL_HANDLER(gui->_reposition_handler, gui, e);
+		if (e.doDefaultAction())
+			return ::DefWindowProcW(h, m, w, l);
+		else
+			return 0;
+	}
+	LRESULT wmSize(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		frost::system::resizeGuiEvent e(vecFromLParam(l));
+		AUTO_SIGNAL_HANDLER(gui->_resize_handler, gui, e);
+		if (e.doDefaultAction())
+			return ::DefWindowProcW(h, m, w, l);
+		else
+			return 0;
+	}
+	LRESULT wmPaint(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		PAINTSTRUCT psPaint;
+		HDC hdc = BeginPaint(h, &psPaint);
+		EndPaint(h, &psPaint);
+
+		system::redrawGuiEvent e;
+		AUTO_SIGNAL_HANDLER(gui->_redraw_handler, gui, e);
+		if (e.doDefaultAction())
+			return ::DefWindowProcW(h, m, w, l);
+		else
+			return 0;
 	}
 	LRESULT wmCreate(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(l);
 		::SetWindowLongPtrW(h, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(cs->lpCreateParams));
 		return ::DefWindowProcW(h, m, w, l);
+	}
+	LRESULT wmClose(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+
+		system::closeGuiEvent e;
+		AUTO_SIGNAL_HANDLER(gui->_close_handlers, gui, e);
+		if (e.doDefaultAction())
+			return ::DefWindowProcW(h, m, w, l);
+		else
+			return 0;
+	}
+	LRESULT wmDestroy(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+		
+		system::destroyGuiEvent e;
+		AUTO_SIGNAL_HANDLER(gui->_destroy_handlers, gui, e);
+
+		if (e.doDefaultAction())
+		{
+			gui->hwnd = nullptr;
+			
+			return ::DefWindowProcW(h, m, w, l);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	frost::v2i32 vecFromLParam(LPARAM l)
+	{
+		return frost::v2i32((i32)(u16)(l & 0xFFFF), (i32)(u16)((l >> 16) & 0xFFFF));
 	}
 }
 #endif
