@@ -1,4 +1,5 @@
 #if defined(_WIN32) || defined(_WIN64)
+#include <iostream>
 #include "_impl.hpp"
 namespace frost::system
 {
@@ -21,6 +22,24 @@ namespace frost::system
 		);
 		ret->thread_id = ::GetCurrentThreadId();
 		frost::setOpacityAndTransparency(ret, 1.0f, nullptr);
+
+		RAWINPUTDEVICE rid[3] = {};
+		for (RAWINPUTDEVICE& device : rid)
+		{
+			device.hwndTarget	= ret->hwnd;
+			device.dwFlags		= RIDEV_DEVNOTIFY;
+			device.usUsagePage	= 0x01;
+		}
+		rid[0].usUsage		= 0x01;
+		rid[1].usUsage		= 0x02;
+		rid[2].usUsage		= 0x06;
+
+		if (::RegisterRawInputDevices(rid, sizeof(rid) / sizeof(*rid), sizeof(*rid)) == FALSE)
+		{
+			::DestroyWindow(ret->hwnd);
+			delete ret;
+			throw std::exception("Failed to capture input for created window");
+		}
 
 		::ShowWindow(ret->hwnd, show_cmd);
 
@@ -58,26 +77,29 @@ namespace frost::system
 		delete ptr;
 	}
 
-#define AUTO_DEFINE_HANDLER(V, E)\
-	void gui::addHandler(pimpl_t<gui> ptr, frost::eventHandler<frost::pimpl_t<gui>, E>& handler)\
+#define AUTO_DEFINE_HANDLER(V, H)\
+	void gui::addHandler(pimpl_t<gui> ptr, H& handler)\
 	{ V.emplace_back(&handler); }\
-	void gui::removeHandler(pimpl_t<gui> ptr, frost::eventHandler<frost::pimpl_t<gui>, E>& handler)\
+	void gui::removeHandler(pimpl_t<gui> ptr, H& handler)\
 	{\
 		for (auto it = V.begin(), jt = V.end(); it != jt; it++) {\
 			if (*it == &handler) { V.erase(it); break; }\
 		}\
 	}
-#define AUTO_SIGNAL_HANDLER(V, S, E)\
-	for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
+	AUTO_DEFINE_HANDLER(ptr->_reposition_handler,		gui::repositionHandler);
+	AUTO_DEFINE_HANDLER(ptr->_resize_handler,			gui::resizeHandler);
+	AUTO_DEFINE_HANDLER(ptr->_redraw_handler,			gui::redrawHandler);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_enter_handlers,	gui::cursorEnterHandler);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_move_handlers,		gui::cursorMoveHandler);
+	AUTO_DEFINE_HANDLER(ptr->_cursor_leave_handlers,	gui::cursorLeaveHandler);
+	AUTO_DEFINE_HANDLER(ptr->_mouse_move_handlers,		gui::mouseMoveHandler);
+	AUTO_DEFINE_HANDLER(ptr->_scroll_wheel_handlers,	gui::scrollWheelHandler);
+	AUTO_DEFINE_HANDLER(ptr->_key_down_handlers,		gui::keyDownHandler);
+	AUTO_DEFINE_HANDLER(ptr->_key_up_handlers,			gui::keyUpHandler);
+	AUTO_DEFINE_HANDLER(ptr->_close_handlers,			gui::closeHandler);
+	AUTO_DEFINE_HANDLER(ptr->_destroy_handlers,			gui::destroyHandler);
+#undef AUTO_DEFINE_HANDLER
 
-	AUTO_DEFINE_HANDLER(ptr->_reposition_handler,		repositionGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_resize_handler,			resizeGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_redraw_handler,			redrawGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_cursor_enter_handlers,	cursorEnterGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_cursor_move_handlers,		cursorMoveGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_cursor_leave_handlers,	cursorLeaveGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_close_handlers,			closeGuiEvent);
-	AUTO_DEFINE_HANDLER(ptr->_destroy_handlers,			destroyGuiEvent);
 }
 
 
@@ -184,6 +206,10 @@ namespace frost
 	{
 		switch (m)
 		{
+		case WM_DEVICECHANGE:
+			break;
+		case WM_INPUT:
+			return wmInput(h, m, w, l);
 		case WM_MOUSEMOVE:
 			return wmMouseMove(h, m, w, l);
 		case WM_MOUSELEAVE:
@@ -202,6 +228,96 @@ namespace frost
 			return wmDestroy(h, m, w, l);
 		default:
 			return ::DefWindowProcW(h, m, w, l);
+		}
+		return ::DefWindowProcW(h, m, w, l);
+	}
+
+#define AUTO_SIGNAL_HANDLER(V, S, E)\
+for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
+	LRESULT wmInput(HWND h, UINT m, WPARAM w, LPARAM l)
+	{
+		auto gui = GuiFromHwnd(h);
+		if (gui == nullptr)
+			return ::DefWindowProcW(h, m, w, l);
+		
+		RAWINPUT ri = {};
+		UINT sz = sizeof(ri);
+		bool success = ::GetRawInputData((HRAWINPUT)l, RID_INPUT, &ri, &sz, sizeof(ri.header)) != -1;
+		if (!success)
+			return ::DefWindowProcW(h, m, w, l);
+
+		if (ri.header.dwType == RIM_TYPEMOUSE)
+		{
+			auto& data = ri.data.mouse;
+			if (data.lLastX != 0 || data.lLastY != 0)
+			{
+				frost::system::mouseMoveGuiEvent e(data.lLastX, data.lLastY);
+				AUTO_SIGNAL_HANDLER(gui->_mouse_move_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			if ((data.usButtonFlags & RI_MOUSE_WHEEL) == RI_MOUSE_WHEEL)
+			{
+				frost::system::scrollWheelGuiEvent e(0, (i16)(u16)data.usButtonData / 120);
+				AUTO_SIGNAL_HANDLER(gui->_scroll_wheel_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			if ((data.usButtonFlags & RI_MOUSE_WHEEL) == RI_MOUSE_WHEEL)
+			{
+				frost::system::scrollWheelGuiEvent e((i16)(u16)data.usButtonData / 120, 0);																									
+				AUTO_SIGNAL_HANDLER(gui->_scroll_wheel_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+
+		}
+
+		if (ri.header.dwType == RIM_TYPEKEYBOARD)
+		{
+			auto& data = ri.data.keyboard;
+			if (data.Flags == RI_KEY_MAKE)
+			{	// Key down TODO USE MAKE CODE
+				frost::system::keyDownGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
+				AUTO_SIGNAL_HANDLER(gui->_key_down_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			else if ((data.Flags & RI_KEY_BREAK) == RI_KEY_BREAK)
+			{	// Key up TODO USE MAKE CODE
+				frost::system::keyUpGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
+				AUTO_SIGNAL_HANDLER(gui->_key_up_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			else if ((data.Flags & RI_KEY_E0) == RI_KEY_E0)
+			{	// Key up TODO USE MAKE CODE
+				frost::system::keyDownGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
+				AUTO_SIGNAL_HANDLER(gui->_key_down_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			else if ((data.Flags & RI_KEY_E1) == RI_KEY_E1)
+			{	// Key up TODO USE MAKE CODE
+				frost::system::keyUpGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
+				AUTO_SIGNAL_HANDLER(gui->_key_up_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
 		}
 		return ::DefWindowProcW(h, m, w, l);
 	}
@@ -240,8 +356,8 @@ namespace frost
 			else
 				return 0;
 		}
-
 	}
+
 	LRESULT wmMouseLeave(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -257,6 +373,7 @@ namespace frost
 		else
 			return 0;
 	}
+
 	LRESULT wmMove(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -270,6 +387,7 @@ namespace frost
 		else
 			return 0;
 	}
+
 	LRESULT wmSize(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -283,6 +401,7 @@ namespace frost
 		else
 			return 0;
 	}
+
 	LRESULT wmPaint(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -300,12 +419,14 @@ namespace frost
 		else
 			return 0;
 	}
+
 	LRESULT wmCreate(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(l);
 		::SetWindowLongPtrW(h, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(cs->lpCreateParams));
 		return ::DefWindowProcW(h, m, w, l);
 	}
+
 	LRESULT wmClose(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -319,6 +440,7 @@ namespace frost
 		else
 			return 0;
 	}
+
 	LRESULT wmDestroy(HWND h, UINT m, WPARAM w, LPARAM l)
 	{
 		auto gui = GuiFromHwnd(h);
@@ -339,6 +461,7 @@ namespace frost
 			return 0;
 		}
 	}
+
 	frost::v2i32 vecFromLParam(LPARAM l)
 	{
 		return frost::v2i32((i32)(u16)(l & 0xFFFF), (i32)(u16)((l >> 16) & 0xFFFF));

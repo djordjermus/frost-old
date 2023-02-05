@@ -36,22 +36,28 @@ namespace frost::system
 		using cursorEnterHandler	= frost::eventHandler<frost::pimpl_t<gui>, cursorEnterGuiEvent>;
 		using cursorMoveHandler		= frost::eventHandler<frost::pimpl_t<gui>, cursorMoveGuiEvent>;
 		using cursorLeaveHandler	= frost::eventHandler<frost::pimpl_t<gui>, cursorLeaveGuiEvent>;
+		using mouseMoveHandler		= frost::eventHandler<frost::pimpl_t<gui>, mouseMoveGuiEvent>;
+		using scrollWheelHandler	= frost::eventHandler<frost::pimpl_t<gui>, scrollWheelGuiEvent>;
+		using keyDownHandler		= frost::eventHandler<frost::pimpl_t<gui>, keyDownGuiEvent>;
+		using keyUpHandler			= frost::eventHandler<frost::pimpl_t<gui>, keyUpGuiEvent>;
 		using closeHandler			= frost::eventHandler<frost::pimpl_t<gui>, closeGuiEvent>;
 		using destroyHandler		= frost::eventHandler<frost::pimpl_t<gui>, destroyGuiEvent>;
 
 #define AUTO_HANDLER_INTERFACE(T)\
-inline void addHandler(frost::eventHandler<frost::pimpl_t<gui>, T>& handler) { addHandler(getPimpl(), handler); }\
-inline void removeHandler(frost::eventHandler<frost::pimpl_t<gui>, T>& handler) { removeHandler(getPimpl(), handler); }
-		AUTO_HANDLER_INTERFACE(repositionGuiEvent);
-		AUTO_HANDLER_INTERFACE(resizeGuiEvent);
-		AUTO_HANDLER_INTERFACE(redrawGuiEvent);
-		AUTO_HANDLER_INTERFACE(cursorEnterGuiEvent);
-		AUTO_HANDLER_INTERFACE(cursorMoveGuiEvent);
-		AUTO_HANDLER_INTERFACE(cursorLeaveGuiEvent);
-		// BUTTON DOWN/UP/DOUBLE CLICK
-		// KEY DOWN/UP
-		AUTO_HANDLER_INTERFACE(closeGuiEvent);
-		AUTO_HANDLER_INTERFACE(destroyGuiEvent);
+inline void addHandler(T& handler) { addHandler(getPimpl(), handler); }\
+inline void removeHandler(T& handler) { removeHandler(getPimpl(), handler); }
+		AUTO_HANDLER_INTERFACE(repositionHandler);
+		AUTO_HANDLER_INTERFACE(resizeHandler);
+		AUTO_HANDLER_INTERFACE(redrawHandler);
+		AUTO_HANDLER_INTERFACE(cursorEnterHandler);
+		AUTO_HANDLER_INTERFACE(cursorMoveHandler);
+		AUTO_HANDLER_INTERFACE(cursorLeaveHandler);
+		AUTO_HANDLER_INTERFACE(mouseMoveHandler);
+		AUTO_HANDLER_INTERFACE(scrollWheelHandler);
+		AUTO_HANDLER_INTERFACE(keyDownHandler);
+		AUTO_HANDLER_INTERFACE(keyUpHandler);
+		AUTO_HANDLER_INTERFACE(closeHandler);
+		AUTO_HANDLER_INTERFACE(destroyHandler);
 #undef AUTO_HANDLER_INTERFACE
 
 		static FROST_SYSTEM pimpl_t<gui> create(const description& desc);
@@ -81,6 +87,10 @@ inline void removeHandler(frost::eventHandler<frost::pimpl_t<gui>, T>& handler) 
 		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, cursorEnterHandler& handler);
 		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, cursorMoveHandler& handler);
 		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, cursorLeaveHandler& handler);
+		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, mouseMoveHandler& handler);
+		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, scrollWheelHandler &handler);
+		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, keyDownHandler& handler);
+		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, keyUpHandler& handler);
 		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, closeHandler& handler);
 		static FROST_SYSTEM void addHandler(pimpl_t<gui> ptr, destroyHandler& handler);
 
@@ -90,6 +100,10 @@ inline void removeHandler(frost::eventHandler<frost::pimpl_t<gui>, T>& handler) 
 		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, cursorEnterHandler& handler);
 		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, cursorMoveHandler& handler);
 		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, cursorLeaveHandler& handler);
+		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, mouseMoveHandler& handler);
+		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, scrollWheelHandler& handler);
+		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, keyDownHandler& handler);
+		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, keyUpHandler& handler);
 		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, closeHandler& handler);
 		static FROST_SYSTEM void removeHandler(pimpl_t<gui> ptr, destroyHandler& handler);
 

@@ -12,6 +12,9 @@ namespace frost
 	class eventHandler
 	{
 	public:
+		using sender_type	= TSender;
+		using data_type		= TData;
+
 		eventHandler() = default;
 		virtual ~eventHandler() = default;
 		virtual void handle(TSender sender, TData& e) { /* STUB METHOD */ }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <mutex>
 #include "frost.core/_include.hpp"
 #include "frost.system/_include.hpp"
 frost::system::semaphore sf(0, 1);
@@ -10,6 +9,10 @@ class handler :
 	public frost::system::gui::cursorEnterHandler,
 	public frost::system::gui::cursorMoveHandler,
 	public frost::system::gui::cursorLeaveHandler,
+	public frost::system::gui::mouseMoveHandler,
+	public frost::system::gui::scrollWheelHandler,
+	public frost::system::gui::keyDownHandler,
+	public frost::system::gui::keyUpHandler,
 	public frost::system::gui::closeHandler,
 	public frost::system::gui::destroyHandler
 {
@@ -19,6 +22,10 @@ class handler :
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorEnterGuiEvent& e) override;
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorMoveGuiEvent& e) override;
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorLeaveGuiEvent& e) override;
+	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::mouseMoveGuiEvent& e) override;
+	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::scrollWheelGuiEvent& e) override;
+	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::keyDownGuiEvent& e) override;
+	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::keyUpGuiEvent& e) override;
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::closeGuiEvent& e) override;
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::destroyGuiEvent& e) override;
 };
@@ -31,14 +38,18 @@ int main()
 
 	frost::system::gui::description desc = {};
 	auto gui = frost::system::gui(desc);
-	gui.addHandler((frost::system::gui::repositionHandler&)h);
-	gui.addHandler((frost::system::gui::resizeHandler&)h);
-	gui.addHandler((frost::system::gui::redrawHandler&)h);
-	gui.addHandler((frost::system::gui::cursorEnterHandler&)h);
-	gui.addHandler((frost::system::gui::cursorMoveHandler&)h);
-	gui.addHandler((frost::system::gui::cursorLeaveHandler&)h);
-	gui.addHandler((frost::system::gui::closeHandler&)h);
-	gui.addHandler((frost::system::gui::destroyHandler&)h);
+	// gui.addHandler((frost::system::gui::repositionHandler&)h);
+	// gui.addHandler((frost::system::gui::resizeHandler&)h);
+	// gui.addHandler((frost::system::gui::redrawHandler&)h);
+	// gui.addHandler((frost::system::gui::cursorEnterHandler&)h);
+	// gui.addHandler((frost::system::gui::cursorMoveHandler&)h);
+	// gui.addHandler((frost::system::gui::cursorLeaveHandler&)h);
+	// gui.addHandler((frost::system::gui::mouseMoveHandler&)h);
+	gui.addHandler((frost::system::gui::scrollWheelHandler&)h);
+	gui.addHandler((frost::system::gui::keyDownHandler&)h);
+	gui.addHandler((frost::system::gui::keyUpHandler&)h);
+	// gui.addHandler((frost::system::gui::closeHandler&)h);
+	// gui.addHandler((frost::system::gui::destroyHandler&)h);
 
 	while (gui.isAlive())
 	{
@@ -61,15 +72,31 @@ void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::r
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorEnterGuiEvent& e)
 {
-	std::cout << "MOUSE ENTER: " << e.getPosition().x << ", " << e.getPosition().y << '\n';
+	std::cout << "CURSOR ENTER: " << e.getPosition().x << ", " << e.getPosition().y << '\n';
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorMoveGuiEvent& e)
 {
-	std::cout << "MOUSE MOVE:  " << e.getPosition().x << ", " << e.getPosition().y << '\n';
+	std::cout << "CURSOR MOVE:  " << e.getPosition().x << ", " << e.getPosition().y << '\n';
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::cursorLeaveGuiEvent& e)
 {
-	std::cout << "MOUSE LEAVE: " << e.getPosition().x << ", " << e.getPosition().y << '\n';
+	std::cout << "CURSOR LEAVE: " << e.getPosition().x << ", " << e.getPosition().y << '\n';
+}
+void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::mouseMoveGuiEvent& e)
+{
+	std::cout << "MOUSE MOVE:   " << e.getDelta().x << ", " << e.getDelta().y << '\n';
+}
+void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::scrollWheelGuiEvent& e)
+{
+	std::cout << "SCROLL:       " << e.getDelta().x << ", " << e.getDelta().y << '\n';
+}
+void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::keyDownGuiEvent& e)
+{
+	std::cout << "0x" << std::uppercase << std::hex << (int)e.getKey().getPimpl() << "\n";
+}
+void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::keyUpGuiEvent& e)
+{
+	//std::cout << "KEY UP:       " << e.getKey().getPimpl() << '\n';
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::closeGuiEvent& e)
 {
@@ -79,3 +106,79 @@ void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::d
 {
 	std::cout << "Destroyed!\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

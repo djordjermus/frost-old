@@ -1,6 +1,7 @@
 #include "frost.core/vectors.hpp"
 #include "frost.core/eventData.h"
 #include "frost.core/pimpl.hpp"
+#include "../input/key.hpp"
 #include "../_macro.hpp"
 namespace frost::system
 {
@@ -50,24 +51,64 @@ namespace frost::system
 	class cursorEnterGuiEvent : public cursorGuiEvent
 	{
 	public:
-		inline cursorEnterGuiEvent(const frost::v2i32& position) :
-			cursorGuiEvent(position) {}
+		FROST_SYSTEM cursorEnterGuiEvent(const frost::v2i32& position);
 	};
 	class cursorMoveGuiEvent : public cursorGuiEvent
 	{
 	public:
-		inline cursorMoveGuiEvent(const frost::v2i32& position) :
-			cursorGuiEvent(position) {}
+		FROST_SYSTEM cursorMoveGuiEvent(const frost::v2i32& position);
 	};
 	class cursorLeaveGuiEvent : public cursorGuiEvent
 	{
 	public:
-		inline cursorLeaveGuiEvent(const frost::v2i32& position) :
-			cursorGuiEvent(position) {}
+		FROST_SYSTEM cursorLeaveGuiEvent(const frost::v2i32& position);
+	};
+
+	class mouseMoveGuiEvent : public guiEvent
+	{
+	public:
+		FROST_SYSTEM mouseMoveGuiEvent(const v2i32& delta);
+		FROST_SYSTEM mouseMoveGuiEvent(i32 delta_x, i32 delta_y);
+		FROST_SYSTEM v2i32 getDelta() const;
+
+	private:
+		v2i32 _delta;
+	};
+
+	class scrollWheelGuiEvent : public guiEvent
+	{
+	public:
+		FROST_SYSTEM scrollWheelGuiEvent(const v2i32& delta);
+		FROST_SYSTEM scrollWheelGuiEvent(i32 delta_x, i32 delta_y);
+		FROST_SYSTEM v2i32 getDelta() const;
+
+	private:
+		v2i32 _delta;
+	};
+
+	class keyGuiEvent : public guiEvent
+	{
+	public:
+		FROST_SYSTEM keyGuiEvent(key key);
+		FROST_SYSTEM key getKey() const;
+
+	private:
+		key _key;
+	};
+	class keyDownGuiEvent : public keyGuiEvent
+	{
+	public:
+		FROST_SYSTEM keyDownGuiEvent(key key);
+	};
+	class keyUpGuiEvent : public keyGuiEvent
+	{
+	public:
+		FROST_SYSTEM keyUpGuiEvent(key key);
 	};
 
 
-
+	//
+	// OTHER EVENTS
 	class redrawGuiEvent : public guiEvent
 	{
 	public:
@@ -90,7 +131,6 @@ namespace frost::system
 	//	- Create event data class
 	//	- Add Vector of relevant event handlers to gui implementation
 	//	- Add interface for adding/removing event handlers (declare in )
-	//	- Create system function that signals event handlers
-	//	- Add it to gui procedure
+	//	- Implement event signaling into gui procedure
 	//
 }

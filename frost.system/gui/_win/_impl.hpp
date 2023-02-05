@@ -19,14 +19,18 @@ namespace frost
 		DWORD	thread_id		= 0;
 		bool	cursor_inside	= false;
 
-		std::vector<system::gui::resizeHandler*> _resize_handler;
-		std::vector<system::gui::repositionHandler*> _reposition_handler;
-		std::vector<system::gui::redrawHandler*> _redraw_handler;
-		std::vector<system::gui::cursorEnterHandler*> _cursor_enter_handlers;
-		std::vector<system::gui::cursorMoveHandler*> _cursor_move_handlers;
-		std::vector<system::gui::cursorLeaveHandler*> _cursor_leave_handlers;
-		std::vector<system::gui::closeHandler*> _close_handlers;
-		std::vector<system::gui::destroyHandler*> _destroy_handlers;
+		std::vector<system::gui::resizeHandler*>		_resize_handler;
+		std::vector<system::gui::repositionHandler*>	_reposition_handler;
+		std::vector<system::gui::redrawHandler*>		_redraw_handler;
+		std::vector<system::gui::cursorEnterHandler*>	_cursor_enter_handlers;
+		std::vector<system::gui::cursorMoveHandler*>	_cursor_move_handlers;
+		std::vector<system::gui::cursorLeaveHandler*>	_cursor_leave_handlers;
+		std::vector<system::gui::mouseMoveHandler*>		_mouse_move_handlers;
+		std::vector<system::gui::scrollWheelHandler*>	_scroll_wheel_handlers;
+		std::vector<system::gui::keyDownHandler*>		_key_down_handlers;
+		std::vector<system::gui::keyUpHandler*>			_key_up_handlers;
+		std::vector<system::gui::closeHandler*>			_close_handlers;
+		std::vector<system::gui::destroyHandler*>		_destroy_handlers;
 	};
 
 	ATOM getWindowClassAtom();
@@ -38,14 +42,15 @@ namespace frost
 	
 	pimpl_t<system::gui> GuiFromHwnd(HWND h);
 	LRESULT guiProcedure(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmMouseMove(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmInput		(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmMouseMove	(HWND h, UINT m, WPARAM w, LPARAM l);
 	LRESULT wmMouseLeave(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmSize(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmMove(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmPaint(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmCreate(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmClose(HWND h, UINT m, WPARAM w, LPARAM l);
-	LRESULT wmDestroy(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmSize		(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmMove		(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmPaint		(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmCreate	(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmClose		(HWND h, UINT m, WPARAM w, LPARAM l);
+	LRESULT wmDestroy	(HWND h, UINT m, WPARAM w, LPARAM l);
 	frost::v2i32 vecFromLParam(LPARAM l);
 
 #define ADD_HANDLER(V, H)\
