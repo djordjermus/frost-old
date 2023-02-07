@@ -45,27 +45,111 @@ namespace frost::system
 
 		return ret;
 	}
-	void gui::setWindowPosition(pimpl_t<gui> ptr, const v2i32& position){}
-	void gui::setWindowSize(pimpl_t<gui> ptr, const v2i32& size){}
-	void gui::setCaption(pimpl_t<gui> ptr, pimpl_t<string> caption){}
-	void gui::setState(pimpl_t<gui> ptr, gui::state state){}
-	void gui::setOptions(pimpl_t<gui> ptr, gui::options options){}
-	void gui::setOpacity(pimpl_t<gui> ptr, f32 opacity){}
-	void gui::setTransparencyKey(pimpl_t<gui> ptr, frost::rgba8 color){}
-	void gui::setTransparencyEnabled(pimpl_t<gui> ptr, frost::rgba8 color){}
+	void gui::setCaption(pimpl_t<gui> ptr, pimpl_t<string> caption)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed set caption - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed set caption - given gui is destroyed.");
+
+		frost::string::destroy(ptr->caption);
+		ptr->caption = frost::string::clone(caption);
+		::SetWindowTextW(ptr->hwnd, frost::string::getData(ptr->caption));
+	}
+	void gui::setState(pimpl_t<gui> ptr, gui::state state)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed set state - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed set state - given gui is destroyed.");
+
+		ptr->state = state;
+		::ShowWindow(ptr->hwnd, frost::stateToInt(state));
+	}
+	void gui::setOptions(pimpl_t<gui> ptr, gui::options options)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed set options - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed set options - given gui is destroyed.");
+
+		ptr->options = options;
+		DWORD style = frost::optionsToDword(options);
+
+		WINDOWPLACEMENT wp;
+		::GetWindowPlacement(ptr->hwnd, &wp);
+
+		::SetWindowLongW(ptr->hwnd, GWL_STYLE, style);
+		::ShowWindow(ptr->hwnd, wp.showCmd);
+	}
+	void gui::setOpacity(pimpl_t<gui> ptr, f32 opacity)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed set opacity - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed set opacity - given gui is destroyed.");
+
+		frost::setOpacityAndTransparency(ptr, opacity, ptr->transparency ? &ptr->key : nullptr);
+	}
+	void gui::setTransparencyKey(pimpl_t<gui> ptr, frost::rgba8 color)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed set transparency key - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed set transparency key - given gui is destroyed.");
+
+		frost::setOpacityAndTransparency(ptr, ptr->opacity, &color);
+	}
+	void gui::setTransparencyEnabled(pimpl_t<gui> ptr, bool enable)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed dis/enable transparency - given gui is null.");
+		if (ptr->hwnd == nullptr)
+			throw std::invalid_argument("Failed dis/enable transparency - given gui is destroyed.");
+
+		frost::setOpacityAndTransparency(ptr, ptr->opacity, enable ? &ptr->key : nullptr);
+	}
 
 	bool gui::isAlive(pimpl_t<gui> ptr)
 	{
-		return static_cast<bool>(::IsWindow(ptr->hwnd));
+		return static_cast<bool>(ptr != nullptr && ::IsWindow(ptr->hwnd));
 	}
-	v2i32 gui::getWindowPosition(pimpl_t<gui> ptr){ return {}; }
-	v2i32 gui::getWindowSize(pimpl_t<gui> ptr){ return {}; }
-	pimpl_t<string> gui::getCaption(pimpl_t<gui> ptr){ return {}; }
-	gui::state gui::getState(pimpl_t<gui> ptr){ return {}; }
-	gui::options gui::getOptions(pimpl_t<gui> ptr){ return {}; }
-	f32 gui::getOpacity(pimpl_t<gui> ptr){ return {}; }
-	rgba8 gui::getTransparencyKey(pimpl_t<gui> ptr){ return {}; }
-	bool gui::isTransparencyEnabled(pimpl_t<gui> ptr){ return {}; }
+	pimpl_t<string> gui::getCaption(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return frost::string::clone(ptr->caption);
+	}
+	gui::state gui::getState(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return ptr->state;
+	}
+	gui::options gui::getOptions(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return ptr->options;
+	}
+	f32 gui::getOpacity(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return ptr->opacity;
+	}
+	rgba8 gui::getTransparencyKey(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return ptr->key;
+	}
+	bool gui::isTransparencyEnabled(pimpl_t<gui> ptr)
+	{
+		if (ptr == nullptr)
+			throw std::invalid_argument("Failed to get gui caption - gui is null.");
+		return ptr->transparency;
+	}
 	void gui::destroy(pimpl_t<gui> ptr)
 	{
 		if (ptr == nullptr)
@@ -177,24 +261,46 @@ namespace frost
 			ret = ret | system::gui::options::maximize_button;
 		return ret;
 	}
+
 	void setOpacityAndTransparency(pimpl_t<system::gui> ptr, f32 opacity, const rgba8* color)
 	{
-		bool use_opacity = opacity < 1.0f;
-		bool use_key = color != nullptr;
+		bool use_opacity	= opacity < 1.0f;
+		bool use_key		= color != nullptr;
 
-		ptr->opacity	= use_opacity ? (opacity < 0.0f ? 0.0f : opacity) : 1.0f;
-		ptr->key		= use_key ? *color : ptr->key;
+		ptr->transparency	= color != nullptr;
+		ptr->opacity		= use_opacity ? (opacity < 0.0f ? 0.0f : opacity) : 1.0f;
+		ptr->key			= color != nullptr ? *color : ptr->key;
 
-		COLORREF col = !use_key ? 0 : RGB(color->r, color->g, color->b);
 		::SetLayeredWindowAttributes
 		(
 			ptr->hwnd,
-			col,
-			static_cast<BYTE>(opacity * 255),
-			(opacity == 1.0f ? 0 : LWA_ALPHA) | (color == nullptr ? 0 : LWA_COLORKEY)
+			!use_key ? 0 : RGB(ptr->key.r, ptr->key.g, ptr->key.b),
+			static_cast<BYTE>(ptr->opacity * 255),
+			(use_opacity != 1.0f ? LWA_ALPHA : 0) | (use_key ? LWA_COLORKEY : 0)
 		);
-		ptr->opacity = opacity;
-		ptr->key = color == nullptr ? rgba8() : *color;
+	}
+	void cacheBounds(pimpl_t<system::gui> ptr)
+	{
+		RECT rect;
+		::GetWindowRect(ptr->hwnd, &rect);
+		ptr->win_rect.x = rect.left;
+		ptr->win_rect.y = rect.top;
+		ptr->win_rect.z = rect.right - rect.left;
+		ptr->win_rect.w = rect.bottom - rect.top;
+
+		::GetClientRect(ptr->hwnd, &rect);
+		ptr->cli_rect.x = rect.left;
+		ptr->cli_rect.y = rect.top;
+		ptr->cli_rect.z = rect.right - rect.left;
+		ptr->cli_rect.w = rect.bottom - rect.top;
+
+		WINDOWPLACEMENT wp = {};
+		::GetWindowPlacement(ptr->hwnd, &wp);
+		system::gui::state new_state = stateFromInt(wp.showCmd);
+		if (ptr->state != new_state)
+		{
+			ptr->state = new_state;
+		}
 	}
 
 	pimpl_t<system::gui> GuiFromHwnd(HWND h)
@@ -249,6 +355,8 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 		if (ri.header.dwType == RIM_TYPEMOUSE)
 		{
 			auto& data = ri.data.mouse;
+
+			// MOUSE MOVE
 			if (data.lLastX != 0 || data.lLastY != 0)
 			{
 				frost::system::mouseMoveGuiEvent e(data.lLastX, data.lLastY);
@@ -258,6 +366,8 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 				else
 					return 0;
 			}
+
+			// SCROLL
 			if ((data.usButtonFlags & RI_MOUSE_WHEEL) == RI_MOUSE_WHEEL)
 			{
 				frost::system::scrollWheelGuiEvent e(0, (i16)(u16)data.usButtonData / 120);
@@ -276,14 +386,71 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 				else
 					return 0;
 			}
-
+			
+			// CLICK
+			static USHORT down =
+				  RI_MOUSE_BUTTON_1_DOWN
+				| RI_MOUSE_BUTTON_2_DOWN
+				| RI_MOUSE_BUTTON_3_DOWN
+				| RI_MOUSE_BUTTON_4_DOWN
+				| RI_MOUSE_BUTTON_5_DOWN;
+			static USHORT up =
+				  RI_MOUSE_BUTTON_1_UP
+				| RI_MOUSE_BUTTON_2_UP
+				| RI_MOUSE_BUTTON_3_UP
+				| RI_MOUSE_BUTTON_4_UP
+				| RI_MOUSE_BUTTON_5_UP;
+			if ((data.usButtonFlags & down) != 0)
+			{
+				system::keyDownGuiEvent e(system::key::nullkey);
+				switch (data.usButtonFlags)
+				{
+					break; case RI_MOUSE_BUTTON_1_DOWN:
+						e = system::keyDownGuiEvent(system::key::left_mouse_button);
+					break; case RI_MOUSE_BUTTON_2_DOWN:
+						e = system::keyDownGuiEvent(system::key::right_mouse_button);
+					break; case RI_MOUSE_BUTTON_3_DOWN:
+						e = system::keyDownGuiEvent(system::key::middle_mouse_button);
+					break; case RI_MOUSE_BUTTON_4_DOWN:
+						e = system::keyDownGuiEvent(system::key::x1_mouse_button);
+					break; case RI_MOUSE_BUTTON_5_DOWN:
+						e = system::keyDownGuiEvent(system::key::x2_mouse_button);
+				}
+				AUTO_SIGNAL_HANDLER(gui->_key_down_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
+			if ((data.usButtonFlags & up) != 0)
+			{
+				system::keyUpGuiEvent e(system::key::nullkey);
+				switch (data.usButtonFlags)
+				{
+					break; case RI_MOUSE_BUTTON_1_UP:
+						e = system::keyUpGuiEvent(system::key::left_mouse_button);
+					break; case RI_MOUSE_BUTTON_2_UP:
+						e = system::keyUpGuiEvent(system::key::right_mouse_button);
+					break; case RI_MOUSE_BUTTON_3_UP:
+						e = system::keyUpGuiEvent(system::key::middle_mouse_button);
+					break; case RI_MOUSE_BUTTON_4_UP:
+						e = system::keyUpGuiEvent(system::key::x1_mouse_button);
+					break; case RI_MOUSE_BUTTON_5_UP:
+						e = system::keyUpGuiEvent(system::key::x2_mouse_button);
+				}
+				AUTO_SIGNAL_HANDLER(gui->_key_up_handlers, gui, e);
+				if (e.doDefaultAction())
+					return ::DefWindowProcW(h, m, w, l);
+				else
+					return 0;
+			}
 		}
 
 		if (ri.header.dwType == RIM_TYPEKEYBOARD)
 		{
 			auto& data = ri.data.keyboard;
 			if (data.Flags == RI_KEY_MAKE)
-			{	// Key down TODO USE MAKE CODE
+			{	// Key down
 				frost::system::keyDownGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
 				AUTO_SIGNAL_HANDLER(gui->_key_down_handlers, gui, e);
 				if (e.doDefaultAction())
@@ -292,7 +459,7 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 					return 0;
 			}
 			else if ((data.Flags & RI_KEY_BREAK) == RI_KEY_BREAK)
-			{	// Key up TODO USE MAKE CODE
+			{	// Key up
 				frost::system::keyUpGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
 				AUTO_SIGNAL_HANDLER(gui->_key_up_handlers, gui, e);
 				if (e.doDefaultAction())
@@ -301,7 +468,7 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 					return 0;
 			}
 			else if ((data.Flags & RI_KEY_E0) == RI_KEY_E0)
-			{	// Key up TODO USE MAKE CODE
+			{	// Key up
 				frost::system::keyDownGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
 				AUTO_SIGNAL_HANDLER(gui->_key_down_handlers, gui, e);
 				if (e.doDefaultAction())
@@ -310,7 +477,7 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 					return 0;
 			}
 			else if ((data.Flags & RI_KEY_E1) == RI_KEY_E1)
-			{	// Key up TODO USE MAKE CODE
+			{	// Key up
 				frost::system::keyUpGuiEvent e((frost::pimpl_t<frost::system::key>)data.VKey);
 				AUTO_SIGNAL_HANDLER(gui->_key_up_handlers, gui, e);
 				if (e.doDefaultAction())
@@ -380,6 +547,8 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 		if (gui == nullptr)
 			return ::DefWindowProcW(h, m, w, l);
 
+		cacheBounds(gui);
+
 		frost::system::repositionGuiEvent e(vecFromLParam(l));
 		AUTO_SIGNAL_HANDLER(gui->_reposition_handler, gui, e);
 		if (e.doDefaultAction())
@@ -393,6 +562,8 @@ for (auto it = V.begin(), jt = V.end(); it != jt; it++) (*it)->handle(S, E);
 		auto gui = GuiFromHwnd(h);
 		if (gui == nullptr)
 			return ::DefWindowProcW(h, m, w, l);
+
+		cacheBounds(gui);
 
 		frost::system::resizeGuiEvent e(vecFromLParam(l));
 		AUTO_SIGNAL_HANDLER(gui->_resize_handler, gui, e);

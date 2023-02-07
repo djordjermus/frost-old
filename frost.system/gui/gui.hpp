@@ -61,18 +61,14 @@ inline void removeHandler(T& handler) { removeHandler(getPimpl(), handler); }
 #undef AUTO_HANDLER_INTERFACE
 
 		static FROST_SYSTEM pimpl_t<gui> create(const description& desc);
-		static FROST_SYSTEM void setWindowPosition(pimpl_t<gui> ptr, const v2i32& position);
-		static FROST_SYSTEM void setWindowSize(pimpl_t<gui> ptr, const v2i32& size);
 		static FROST_SYSTEM void setCaption(pimpl_t<gui> ptr, pimpl_t<string> caption);
 		static FROST_SYSTEM void setState(pimpl_t<gui> ptr, state state);
 		static FROST_SYSTEM void setOptions(pimpl_t<gui> ptr, options options);
 		static FROST_SYSTEM void setOpacity(pimpl_t<gui> ptr, f32 opacity);
 		static FROST_SYSTEM void setTransparencyKey(pimpl_t<gui> ptr, frost::rgba8 color);
-		static FROST_SYSTEM void setTransparencyEnabled(pimpl_t<gui> ptr, frost::rgba8 color);
+		static FROST_SYSTEM void setTransparencyEnabled(pimpl_t<gui> ptr, bool enable);
 
 		static FROST_SYSTEM bool isAlive(pimpl_t<gui> ptr);
-		static FROST_SYSTEM v2i32 getWindowPosition(pimpl_t<gui> ptr);
-		static FROST_SYSTEM v2i32 getWindowSize(pimpl_t<gui> ptr);
 		static FROST_SYSTEM pimpl_t<string> getCaption(pimpl_t<gui> ptr);
 		static FROST_SYSTEM state getState(pimpl_t<gui> ptr);
 		static FROST_SYSTEM options getOptions(pimpl_t<gui> ptr);

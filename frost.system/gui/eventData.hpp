@@ -106,7 +106,6 @@ namespace frost::system
 		FROST_SYSTEM keyUpGuiEvent(key key);
 	};
 
-
 	//
 	// OTHER EVENTS
 	class redrawGuiEvent : public guiEvent

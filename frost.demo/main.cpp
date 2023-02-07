@@ -29,6 +29,10 @@ class handler :
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::closeGuiEvent& e) override;
 	void handle(frost::pimpl_t<frost::system::gui> sender, frost::system::destroyGuiEvent& e) override;
 };
+// TODO
+//	Graphics
+//	Audio
+
 int main()
 {
 	frost::system::message::initQueue();
@@ -96,7 +100,7 @@ void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::k
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::keyUpGuiEvent& e)
 {
-	//std::cout << "KEY UP:       " << e.getKey().getPimpl() << '\n';
+	std::cout << "0x" << std::uppercase << std::hex << (int)e.getKey().getPimpl() << "\n";
 }
 void handler::handle(frost::pimpl_t<frost::system::gui> sender, frost::system::closeGuiEvent& e)
 {

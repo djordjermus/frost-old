@@ -10,14 +10,18 @@ namespace frost
 	class impl_t<system::gui> final
 	{
 	public:
-		HWND	hwnd			= nullptr;
-		v2i32	win_rect		= v2i32();
-		v2i32	cli_rect		= v2i32();
-		v2i32	cursor_last		= v2i32(0, 0);
-		f32		opacity			= 0.0f;
-		rgba8	key				= rgba8();
-		DWORD	thread_id		= 0;
-		bool	cursor_inside	= false;
+		HWND					hwnd			= nullptr;
+		pimpl_t<string>			caption			= nullptr;
+		v4i32					win_rect		= v4i32();
+		v4i32					cli_rect		= v4i32();
+		v2i32					cursor_last		= v2i32(0, 0);
+		f32						opacity			= 0.0f;
+		rgba8					key				= rgba8();
+		DWORD					thread_id		= 0;
+		system::gui::state		state			= system::gui::state::hidden;
+		system::gui::options	options			= system::gui::options::none;
+		bool					cursor_inside	= false;
+		bool					transparency	= false;
 
 		std::vector<system::gui::resizeHandler*>		_resize_handler;
 		std::vector<system::gui::repositionHandler*>	_reposition_handler;
@@ -38,8 +42,10 @@ namespace frost
 	DWORD optionsToDword(system::gui::options options);
 	system::gui::state stateFromInt(int state);
 	system::gui::options optionsFromDword(DWORD options);
+
 	void setOpacityAndTransparency(pimpl_t<system::gui> ptr, f32 opacity, const rgba8* color);
-	
+	void cacheBounds(pimpl_t<system::gui> ptr);
+
 	pimpl_t<system::gui> GuiFromHwnd(HWND h);
 	LRESULT guiProcedure(HWND h, UINT m, WPARAM w, LPARAM l);
 	LRESULT wmInput		(HWND h, UINT m, WPARAM w, LPARAM l);
