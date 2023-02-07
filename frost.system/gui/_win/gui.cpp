@@ -184,6 +184,18 @@ namespace frost::system
 	AUTO_DEFINE_HANDLER(ptr->_destroy_handlers,			gui::destroyHandler);
 #undef AUTO_DEFINE_HANDLER
 
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, repositionGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, resizeGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, redrawGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, cursorEnterGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, cursorMoveGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, cursorLeaveGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, mouseMoveGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, scrollWheelGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, keyDownGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, keyUpGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, closeGuiEvent& e) { /* STUB METHOD*/ }
+	void gui::defaultHandler::handle(frost::pimpl_t<gui> sender, destroyGuiEvent& e) { /* STUB METHOD*/ }
 }
 
 

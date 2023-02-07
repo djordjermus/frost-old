@@ -130,6 +130,34 @@ inline void removeHandler(T& handler) { removeHandler(getPimpl(), handler); }
 			state	state		= state::normal;
 			options	options		= options::all;
 		};
+
+		class defaultHandler : 
+			public repositionHandler,
+			public resizeHandler,
+			public redrawHandler,
+			public cursorEnterHandler,
+			public cursorMoveHandler,
+			public cursorLeaveHandler,
+			public mouseMoveHandler,
+			public scrollWheelHandler,
+			public keyDownHandler,
+			public keyUpHandler,
+			public closeHandler,
+			public destroyHandler
+		{
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, repositionGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, resizeGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, redrawGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, cursorEnterGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, cursorMoveGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, cursorLeaveGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, mouseMoveGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, scrollWheelGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, keyDownGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, keyUpGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, closeGuiEvent& e) override;
+			void FROST_SYSTEM handle(frost::pimpl_t<gui> sender, destroyGuiEvent& e) override;
+		};
 	};
 	INLINE_BITWISE_ENUM(gui::options);
 }
